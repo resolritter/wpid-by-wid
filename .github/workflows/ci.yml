@@ -1,0 +1,85 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  CI: true
+  PYTHON_VERSION: 3.8.12
+  CLANGFORMAT_VERSION: 14
+  CLANGFORMAT_CHECKSUM: 9019f7d4903d790e6da6ebf3dcf633dc45b6588fcd81f843afc67fda5c018391
+
+jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up pre-commit environment
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Get pip cache dir
+        id: get-pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: Use cached pre-commit environment
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pre-commit
+            ${{ steps.get-pip-cache.outputs.dir }}
+          key: py-lints+${{ env.PYTHON_VERSION }}+${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Use cached clang-format
+        uses: actions/cache@v3
+        with:
+          path: clang-format
+          key: clang-format+${{ env.CLANGFORMAT_VERSION }}+${{ env.CLANGFORMAT_CHECKSUM }}
+
+      - name: Set up clang-format
+        run: |
+          if [ -e clang-format ]; then
+            echo "Using clang-format from cache"
+          else
+            curl -Ls \
+              "https://github.com/muttleyxd/clang-tools-static-binaries/releases/download/master-208096c1/clang-format-${CLANGFORMAT_VERSION}_linux-amd64" \
+              -o clang-format
+            chmod +x clang-format
+            checksum_output="$(sha256sum clang-format)"
+            expected_checksum_output="$CLANGFORMAT_CHECKSUM  clang-format"
+            if [ "$checksum_output" != "$expected_checksum_output" ]; then
+              >&2 echo "ERROR: Mismatching checksum for clang-format"$'\n'"Expected: $expected_checksum_output"$'\n'"Got: $checksum_output"
+              exit 1
+            fi
+          fi
+          ./clang-format --version
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files --show-diff-on-failure --color=always
+
+  build-arch-linux:
+    runs-on: ubuntu-20.04
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: resolritter/docker-run-action@3e77f186b7a929ef010f183a9e24c0f9955ea609
+        with:
+          image: archlinux:base-devel
+          shell: bash
+          options: -v ${{ github.workspace }}:/work
+          run: |
+            cd /work
+            sudo pacman --noconfirm -Syu libxcb libx11 libxres gcc
+            ./build
+            ./wpid-by-wid --help

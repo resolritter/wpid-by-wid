@@ -1,0 +1,49 @@
+UseTab: AlignWithSpaces
+IndentWidth: 2
+TabWidth: 2
+ContinuationIndentWidth: 2
+Language: Cpp
+PointerAlignment: Left
+ColumnLimit: 80
+BinPackArguments: false
+BinPackParameters: false
+ExperimentalAutoDetectBinPacking: false
+AlignAfterOpenBracket: BlockIndent
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+BreakBeforeBraces: Custom
+AlignOperands: DontAlign
+BraceWrapping:
+  AfterEnum: false
+  AfterStruct: false
+  SplitEmptyFunction: false
+  AfterEnum: false
+  AfterFunction: false
+  AfterObjCDeclaration: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+  AfterControlStatement: false
+BreakBeforeBinaryOperators: None
+BreakBeforeTernaryOperators: true
+IndentCaseBlocks: false
+IndentCaseLabels: true
+IndentExternBlock: Indent
+IndentGotoLabels: false
+# InsertBraces: true # Uncomment for clang-format v15
+InsertTrailingCommas: Wrapped
+MaxEmptyLinesToKeep: 1
+ReferenceAlignment: Left
+SpaceBeforeParens: ControlStatements
+SpaceBeforeAssignmentOperators: true
+SeparateDefinitionBlocks: Always
+RemoveBracesLLVM: false
+ReflowComments: true

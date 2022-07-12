@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ "${CI:-}" ]; then
+  # run it as -i on CI so that we can see how clang-format would reformat it in
+  # the pipeline's logs
+  ./clang-format -i "$@"
+else
+  clang-format --Werror --dry-run "$@"
+fi

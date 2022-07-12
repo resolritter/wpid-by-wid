@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -xeu -o pipefail
+
+if &>/dev/null which dirname; then
+  dir="$(dirname "${BASH_SOURCE[0]}")"
+else
+  file_name="${BASH_SOURCE[0]##*/}}"
+  dir="${BASH_SOURCE[0]:: -${#file_name}}"
+fi
+
+gcc -Wall -O3 -lX11 -lxcb -lX11-xcb -lXRes -o wpid-by-wid "$dir/main.c"
